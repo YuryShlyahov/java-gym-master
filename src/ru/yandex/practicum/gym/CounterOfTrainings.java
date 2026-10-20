@@ -3,8 +3,8 @@ package ru.yandex.practicum.gym;
 import java.util.Objects;
 
 public class CounterOfTrainings implements Comparable<CounterOfTrainings>{
-    private Coach coach;
-    private int count;
+    private final Coach coach;
+    private final int count;
 
     public CounterOfTrainings(Coach coach, int count) {
         this.coach = coach;
