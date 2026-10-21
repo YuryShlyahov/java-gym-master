@@ -9,6 +9,8 @@ import java.util.*;
 
 public class TimetableTest {
     private Coach coach;
+    private Coach secondCoach;
+    private Coach thirdCoach;
     private Timetable timetable;
     private Group groupChild;
     private Group groupAdult;
@@ -18,6 +20,8 @@ public class TimetableTest {
     public void setUp() {
         timetable = new Timetable();
         coach = new Coach("Васильев", "Николай", "Сергеевич");
+        secondCoach = new Coach("Ходаков", "Александр", "Иванович");
+        thirdCoach = new Coach("Березин", "Геннадий", "Валерьевич");
         groupChild = new Group("Акробатика для детей", Age.CHILD, 60);
         groupAdult = new Group("Акробатика для взрослых", Age.ADULT, 90);
         singleTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(13, 0));
@@ -68,8 +72,7 @@ public class TimetableTest {
 
     @Test
     public void testGetCountByCoaches() {
-        Coach secondCoach = new Coach("Ходаков", "Александр", "Иванович");
-        Coach thirdCoach = new Coach("Березин", "Геннадий", "Валерьевич");
+
 
         TrainingSession firstTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(13, 0));
         TrainingSession secondTrainingSession = new TrainingSession(groupAdult, secondCoach, DayOfWeek.WEDNESDAY, new TimeOfDay(19, 0));
@@ -89,5 +92,47 @@ public class TimetableTest {
 
         List<CounterOfTrainings> expected = new ArrayList<>(List.of(new CounterOfTrainings(coach, 3), new CounterOfTrainings(secondCoach, 2), new CounterOfTrainings(thirdCoach, 1)));
         assertEquals(expected, timetable.getCountByCoaches(), "Ошибка, неверно идет подсчет нагрузки тренеров и их сортировка в порядке по убыванию.");
+    }
+
+    @Test
+    public void testGetCountByCoachesSameCount() {
+        TrainingSession firstTrainingSession = new TrainingSession(groupChild, secondCoach, DayOfWeek.MONDAY, new TimeOfDay(13, 0));
+        TrainingSession secondTrainingSession = new TrainingSession(groupAdult, coach, DayOfWeek.WEDNESDAY, new TimeOfDay(19, 0));
+        TrainingSession thirdTrainingSession = new TrainingSession(groupChild, thirdCoach, DayOfWeek.SATURDAY, new TimeOfDay(7, 0));
+
+        timetable.addNewTrainingSession(firstTrainingSession);
+        timetable.addNewTrainingSession(secondTrainingSession);
+        timetable.addNewTrainingSession(thirdTrainingSession);
+
+        List<CounterOfTrainings> expected = new ArrayList<>(List.of(new CounterOfTrainings(thirdCoach, 1), new CounterOfTrainings(coach, 1), new CounterOfTrainings(secondCoach, 1)));
+
+        assertEquals(expected, timetable.getCountByCoaches(), "Ошибка, неверно идет сортировка результатов подсчета нагрузки тренеров при равной нагрузке.");
+    }
+
+    @Test
+    public void testGetCountByCoachesSameDayAndTime(){
+        TrainingSession firstTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
+        TrainingSession secondTrainingSession = new TrainingSession(groupAdult, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
+        TrainingSession thirdTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
+        timetable.addNewTrainingSession(firstTrainingSession);
+        timetable.addNewTrainingSession(secondTrainingSession);
+        timetable.addNewTrainingSession(thirdTrainingSession);
+        List<CounterOfTrainings> expected = new ArrayList<>(List.of(new CounterOfTrainings(coach, 3)));
+        assertEquals(expected, timetable.getCountByCoaches(), "Ошибка, неверно идет подсчет нагрузки при тренировках в один день и одно время.");
+    }
+
+    @Test
+    public void testGetTrainingSessionsForDayAndTimeMultipleSessions() {
+        TrainingSession firstTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
+        TrainingSession secondTrainingSession = new TrainingSession(groupAdult, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
+        TrainingSession thirdTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
+        timetable.addNewTrainingSession(firstTrainingSession);
+        timetable.addNewTrainingSession(secondTrainingSession);
+        timetable.addNewTrainingSession(thirdTrainingSession);
+        List<TrainingSession> result = timetable.getTrainingSessionsForDayAndTime(DayOfWeek.MONDAY, new TimeOfDay(11, 0));
+        assertTrue(result.contains(firstTrainingSession), "Ошибка, не добавлена тренировка № 1 при добавлении тренировок в одно время");
+        assertTrue(result.contains(secondTrainingSession), "Ошибка, не добавлена тренировка № 2 при добавлении тренировок в одно время");
+        assertTrue(result.contains(thirdTrainingSession), "Ошибка, не добавлена тренировка № 3 при добавлении тренировок в одно время");
+        assertEquals(3, result.size(), "Ошибка, неверный размер списка тренировок при нескольких тренировках в одно время.");
     }
 }
