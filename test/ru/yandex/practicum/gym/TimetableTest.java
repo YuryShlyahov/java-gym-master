@@ -110,7 +110,7 @@ public class TimetableTest {
     }
 
     @Test
-    public void testGetCountByCoachesSameDayAndTime(){
+    public void testGetCountByCoachesSameDayAndTime() {
         TrainingSession firstTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
         TrainingSession secondTrainingSession = new TrainingSession(groupAdult, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
         TrainingSession thirdTrainingSession = new TrainingSession(groupChild, coach, DayOfWeek.MONDAY, new TimeOfDay(11, 0));
